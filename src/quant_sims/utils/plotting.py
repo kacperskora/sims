@@ -72,6 +72,57 @@ def plot_strategy_comparison(paths_by_strategy: dict, title: str = "Strategy Com
     return ax
 
 
+def plot_paths(time_grid: np.ndarray, paths: np.ndarray, title: str = "Simulated Paths", max_paths: int = 200, ylabel: str = "Value", ax=None):
+    """
+    Plot a sample of simulated paths against a shared time grid (used for
+    random walk / Brownian motion / GBM path plots).
+
+    paths : array of shape (n_paths, len(time_grid))
+    """
+    if ax is None:
+        _, ax = plt.subplots(figsize=(10, 6))
+
+    n_to_plot = min(max_paths, paths.shape[0])
+    idx = np.random.choice(paths.shape[0], size=n_to_plot, replace=False)
+
+    for i in idx:
+        ax.plot(time_grid, paths[i], alpha=0.15, color="steelblue", linewidth=0.8)
+
+    mean_path = np.mean(paths, axis=0)
+    ax.plot(time_grid, mean_path, color="darkorange", linewidth=2, label="Mean path")
+
+    ax.set_xlabel("Time")
+    ax.set_ylabel(ylabel)
+    ax.set_title(title)
+    ax.legend()
+    return ax
+
+
+def plot_terminal_distribution_vs_theory(values: np.ndarray, theoretical_pdf_fn=None, title: str = "Terminal Value Distribution", bins: int = 60, ax=None):
+    """
+    Histogram of terminal values with an optional theoretical density curve
+    overlaid (e.g. a normal or lognormal pdf) for visual comparison against
+    the empirical Monte Carlo distribution.
+
+    theoretical_pdf_fn : callable taking an array of x-values and returning
+        pdf values, or None to skip overlay.
+    """
+    if ax is None:
+        _, ax = plt.subplots(figsize=(10, 6))
+
+    ax.hist(values, bins=bins, density=True, color="steelblue", edgecolor="white", alpha=0.7, label="Simulated")
+
+    if theoretical_pdf_fn is not None:
+        x = np.linspace(values.min(), values.max(), 400)
+        ax.plot(x, theoretical_pdf_fn(x), color="darkorange", linewidth=2, label="Theoretical")
+
+    ax.set_xlabel("Terminal value")
+    ax.set_ylabel("Density")
+    ax.set_title(title)
+    ax.legend()
+    return ax
+
+
 def plot_growth_rate_curve(f_values: np.ndarray, growth_rates: np.ndarray, f_star: float, title: str = "Expected Log Growth Rate vs. Bet Fraction", ax=None):
     """Plot expected log growth rate as a function of bet fraction, marking the Kelly-optimal point."""
     if ax is None:
