@@ -123,6 +123,41 @@ def plot_terminal_distribution_vs_theory(values: np.ndarray, theoretical_pdf_fn=
     return ax
 
 
+def plot_var_es_distribution(returns: np.ndarray, var: float, es: float, alpha: float = 0.95, title: str = "Portfolio Return Distribution — VaR / ES", bins: int = 80, ax=None):
+    """
+    Histogram of simulated/realized returns with the VaR and ES loss levels
+    marked as vertical lines (converted back to return-space, i.e. -VaR and
+    -ES, since VaR/ES are reported as positive loss numbers).
+    """
+    if ax is None:
+        _, ax = plt.subplots(figsize=(10, 6))
+
+    ax.hist(returns, bins=bins, color="steelblue", edgecolor="white", alpha=0.7)
+    ax.axvline(-var, color="darkorange", linewidth=2, label=f"VaR ({alpha:.0%}) = {var:.4f}")
+    ax.axvline(-es, color="firebrick", linewidth=2, linestyle="--", label=f"ES ({alpha:.0%}) = {es:.4f}")
+    ax.set_xlabel("Return")
+    ax.set_ylabel("Frequency")
+    ax.set_title(title)
+    ax.legend()
+    return ax
+
+
+def plot_mean_residual_life(thresholds: np.ndarray, mrl: np.ndarray, title: str = "Mean Residual Life Plot", ax=None):
+    """
+    Plot mean excess vs. threshold for POT threshold selection -- look for
+    the region where the curve is roughly linear as a guide to a stable
+    threshold choice.
+    """
+    if ax is None:
+        _, ax = plt.subplots(figsize=(10, 6))
+
+    ax.plot(thresholds, mrl, "o-", color="steelblue")
+    ax.set_xlabel("Threshold u")
+    ax.set_ylabel("Mean excess over u")
+    ax.set_title(title)
+    return ax
+
+
 def plot_growth_rate_curve(f_values: np.ndarray, growth_rates: np.ndarray, f_star: float, title: str = "Expected Log Growth Rate vs. Bet Fraction", ax=None):
     """Plot expected log growth rate as a function of bet fraction, marking the Kelly-optimal point."""
     if ax is None:
